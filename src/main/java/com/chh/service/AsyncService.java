@@ -1,6 +1,7 @@
 package com.chh.service;
 
 import com.chh.util.AsyncUtil;
+import com.chh.util.ReflectionAsyncUtil;
 import com.chh.util.SpringUtils;
 import com.chh.util.Threads;
 import jakarta.annotation.PostConstruct;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -121,7 +123,7 @@ public class AsyncService {
             String param1 = (String) params[0];
             Integer param2 = (Integer) params[1];
             Boolean param3 = (Boolean) params[2];
-            String param4 = (String) params[4];
+            String param4 = (String) params[4]; // 越过下标
             // 处理逻辑
             asyncExample(param1, param2, param3, param4);
             return null;
@@ -136,6 +138,19 @@ public class AsyncService {
         });
         // 做其他事情...
         log.info("Doing other things...");
+    }
+
+    // 使用反射工具类，自动处理参数传递
+    public void asyncMethod9() {
+        ReflectionAsyncUtil.executeAsync(this, "asyncExample", "Message", 1, true, "Hello", Map.of("param", "World"))
+                .thenAccept(result -> {
+                    // 异步处理完成后的操作
+                    log.info("Result: {}", result);
+                }).exceptionally(e -> {
+                    // 异常处理
+                    log.error("Exception occurred: {}", e.getMessage());
+                    return null;
+                });
     }
 
     private void asyncExample() {
@@ -197,6 +212,19 @@ public class AsyncService {
         }
         log.info("End asyncExample");
         log.info("Message: {}, Number: {}, Flag: {}, Other: {}", message, num, flag, other);
+    }
+
+    public String asyncExample(String message, int num, boolean flag, String other, Map<String, Object> map) {
+        log.info("Start asyncExample");
+        for (int i = 0; i < 3; i++) {
+            if (i > 0) {
+                Threads.sleep(1000);
+            }
+            log.info("for: {}", i);
+        }
+        log.info("End asyncExample");
+        log.info("Message: {}, Number: {}, Flag: {}, Other: {}, Map: {}", message, num, flag, other, map);
+        return message + num + (flag ? "true" : "false") + other + map;
     }
 
 }

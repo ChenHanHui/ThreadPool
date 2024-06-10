@@ -93,4 +93,11 @@ public class AsyncController {
         System.out.println("asyncMethod8() 方法执行完毕");
     }
 
+    @RequestMapping("/async9")
+    public void asyncMethod9() {
+        asyncService.asyncMethod9();
+        // 继续处理其他业务逻辑
+        System.out.println("asyncMethod9() 方法执行完毕");
+    }
+
 }
